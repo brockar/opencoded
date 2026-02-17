@@ -8,6 +8,7 @@ services:
     tty: true
     environment:
       GH_TOKEN: ${GH_TOKEN:-}
+      OPENCODE_SERVER_PASSWORD: ${OPENCODE_SERVER_PASSWORD:-}
     volumes:
       - ./:/workspace
       - ${HOME}/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro

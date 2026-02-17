@@ -67,6 +67,7 @@ docker run -d \
   -v ~/.config/opencode:/home/debian/.config/opencode \
   -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
   -e GH_TOKEN=${GH_TOKEN:-} \
+  -e OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-} \
   ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096
 ```
 
@@ -85,6 +86,7 @@ docker run -it \
   -v ~/.config/opencode:/home/debian/.config/opencode \
   -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
   -e GH_TOKEN=${GH_TOKEN:-} \
+  -e OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-} \
   ghcr.io/brockar/opencoded:latest
 ```
 
@@ -106,6 +108,7 @@ docker run -d \
   -v ~/.config/opencode:/home/debian/.config/opencode \
   -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
   -e GH_TOKEN=${GH_TOKEN:-} \
+  -e OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-} \
   ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096
 
 # Instance 2: Project B on port 4097
@@ -119,6 +122,7 @@ docker run -d \
   -v ~/.config/opencode:/home/debian/.config/opencode \
   -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
   -e GH_TOKEN=${GH_TOKEN:-} \
+  -e OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-} \
   ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096
 ```
 
@@ -149,16 +153,19 @@ The container mounts:
 
 ### Environment Variables
 
-- `GH_TOKEN` - GitHub token (optional)
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `GH_TOKEN` | GitHub token (optional) | - |
+| `OPENCODE_SERVER_PASSWORD` | Password for securing the web interface | - |
 
 ## Shell Alias (Recommended)
 
 Add to your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-alias opencoded='docker run -d --rm --name opencoded --user "$(id -u):$(id -g)" -p "${OPENCODE_PORT:-4096}:4096" -v "${OPENCODE_PATH:-$(pwd)}:/workspace" -v "$HOME/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro" -v "$HOME/.config/opencode:/home/debian/.config/opencode" -v "$HOME/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json" -e "GH_TOKEN=${GH_TOKEN:-}" ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096'
+alias opencoded='docker run -d --rm --name opencoded --user "$(id -u):$(id -g)" -p "${OPENCODE_PORT:-4096}:4096" -v "${OPENCODE_PATH:-$(pwd)}:/workspace" -v "$HOME/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro" -v "$HOME/.config/opencode:/home/debian/.config/opencode" -v "$HOME/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json" -e "GH_TOKEN=${GH_TOKEN:-}" -e "OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-}" ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096'
 
-alias opencodedt='docker run -it --rm --name opencoded-tui --user "$(id -u):$(id -g)" -v "${OPENCODE_PATH:-$(pwd)}:/workspace" -v "$HOME/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro" -v "$HOME/.config/opencode:/home/debian/.config/opencode" -v "$HOME/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json" -e "GH_TOKEN=${GH_TOKEN:-}" ghcr.io/brockar/opencoded:latest'
+alias opencodedt='docker run -it --rm --name opencoded-tui --user "$(id -u):$(id -g)" -v "${OPENCODE_PATH:-$(pwd)}:/workspace" -v "$HOME/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro" -v "$HOME/.config/opencode:/home/debian/.config/opencode" -v "$HOME/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json" -e "GH_TOKEN=${GH_TOKEN:-}" -e "OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-}" ghcr.io/brockar/opencoded:latest'
 ```
 
 Then reload: `source ~/.bashrc`

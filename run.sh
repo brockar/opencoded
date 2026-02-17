@@ -58,6 +58,7 @@ docker run -d \
   -v "$HOME/.config/opencode:/home/debian/.config/opencode" \
   -v "$HOME/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json" \
   -e "GH_TOKEN=${GH_TOKEN:-}" \
+  -e "OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-}" \
   ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096
 
 echo ""
