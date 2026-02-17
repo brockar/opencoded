@@ -1,0 +1,18 @@
+services:
+  opencode:
+    image: ghcr.io/brockar/opencoded:latest
+    hostname: opencoded
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    environment:
+      GH_TOKEN: ${GH_TOKEN:-}
+    volumes:
+      - ./:/workspace
+      - ${HOME}/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro
+      - ${HOME}/.config/opencode:/home/debian/.config/opencode
+      - ${HOME}/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json
+    ports:
+      - "${OPENCODE_PORT:-4096}:4096"
+    command: ["web", "--hostname", "0.0.0.0", "--port", "4096"]

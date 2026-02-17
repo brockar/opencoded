@@ -1,0 +1,17 @@
+.git
+.gitignore
+.gitattributes
+
+.DS_Store
+*.log
+*.tmp
+*.swp
+*~
+
+node_modules/
+dist/
+build/
+coverage/
+
+.idea/
+.vscode/
