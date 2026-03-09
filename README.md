@@ -159,6 +159,12 @@ The container mounts:
 > -v ~/.local/share/opencode:/home/debian/.local/share/opencode
 > ```
 
+> **Tip — mount your entire code directory:** Instead of mounting a single project, mount your whole `~/code` directory as the workspace. This lets you open any project from the web UI without restarting the container, and keeps all session history consolidated in one place:
+> ```
+> -v ~/code:/workspace
+> ```
+> Then navigate to the specific project inside the UI (e.g. `/workspace/my-project`).
+
 ### Environment Variables
 
 | Variable | Description | Default |
