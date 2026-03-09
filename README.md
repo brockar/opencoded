@@ -151,6 +151,14 @@ The container mounts:
 - `~/.config/opencode` → OpenCode configuration
 - `~/.local/share/opencode/auth.json` → OpenCode authentication
 
+> **Tip — persist sessions:** By default only `auth.json` is mounted. To also keep conversation history, mount the full directory instead:
+> ```
+> # replace this:
+> -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json
+> # with:
+> -v ~/.local/share/opencode:/home/debian/.local/share/opencode
+> ```
+
 ### Environment Variables
 
 | Variable | Description | Default |
