@@ -45,9 +45,9 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           set -euo pipefail
-          if gh api --paginate "/users/${OWNER}/packages/container/${PACKAGE}/versions?per_page=100" \
-            --jq 'any(.[]; (.metadata.container.tags | index("latest")) and (.metadata.container.tags | index(env.VERSION)))' \
-            && [ "${{ inputs.force }}" != "true" ]; then
+          result=$(gh api --paginate "/users/${OWNER}/packages/container/${PACKAGE}/versions?per_page=100" \
+            --jq 'any(.[]; (.metadata.container.tags | index("latest")) and (.metadata.container.tags | index(env.VERSION)))')
+          if [ "$result" = "true" ] && [ "${{ inputs.force }}" != "true" ]; then
             echo "build_needed=false" >> "$GITHUB_OUTPUT"
           else
             echo "build_needed=true" >> "$GITHUB_OUTPUT"
