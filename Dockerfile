@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   curl \
   gnupg \
   openssh-client \
+  sudo \
   && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
@@ -18,7 +19,8 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | g
 
 RUN useradd -m -s /bin/bash debian \
   && mkdir -p /workspace \
-  && chown debian:debian /workspace
+  && chown debian:debian /workspace \
+  && echo "debian ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER debian
 WORKDIR /home/debian
