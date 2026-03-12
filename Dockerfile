@@ -4,10 +4,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   vim \
+  ripgrep \
   ca-certificates \
   curl \
   gnupg \
   openssh-client \
+  less \
   sudo \
   unzip \
   && rm -rf /var/lib/apt/lists/*
