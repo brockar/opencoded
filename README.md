@@ -1,26 +1,33 @@
 # OpenCode Dev Container
 
+![OpenCode Banner](docs/assets/banner.webp)
+
 A Dockerized way to run [OpenCode](https://opencode.ai) — the AI-powered coding assistant — in both **web-based** and **TUI** modes. This container packages OpenCode with all dependencies, providing isolated, reproducible environments for AI-assisted development.
 
 ## Features
 
-- **Web Interface**: Access OpenCode through your browser at <http://localhost:4096>
+- **Web Interface**: Access OpenCode through your browser
 - **TUI Mode**: Run OpenCode directly in your terminal for a native CLI experience
-- **Multiple Instances**: Run several OpenCode containers simultaneously on different ports for different projects
+- **Multiple Instances**: Run several OpenCode containers simultaneously on different ports for different projects — [guide](docs/multiple_instances.md)
 - **Persistent Configuration**: Your OpenCode settings and authentication persist across container restarts
 - **Git Integration**: SSH keys mounted for seamless git operations
 - **Project Isolation**: Each container works on a specific project directory
 
 ## Quick Start
 
-### First Time Setup
+### Clone the repository
 
-Ensure you have an SSH key for GitHub:
+```bash
+git clone https://github.com/brockar/opencoded.git ~/opencoded
+cd ~/opencoded
+```
 
-   ```bash
-   cd ~/.ssh/
-   ssh-keygen -t ed25519 -C 'your@email.com'
-   ```
+### Prerequisites
+
+Before running, make sure you have:
+
+- Your **SSH key** at `~/.ssh/id_ed25519` (for git operations inside the container)
+- **OpenCode authentication** configured (see [Configuration](#configuration) below)
 
 ### Using Docker Compose (recommended)
 
@@ -33,28 +40,18 @@ The web interface will be available at: **<http://localhost:4096>**
 ### Using the helper script
 
 ```bash
-./run.sh
+~/opencoded/run.sh
 ```
 
 Run on a specific project:
 
 ```bash
-PROJECT_PATH=/path/to/project ./run.sh
+PROJECT_PATH=/path/to/project ~/opencoded/run.sh
 ```
-
-### Custom port
-
-```bash
-OPENCODE_PORT=3000 docker compose up -d
-```
-
-Then access at: **<http://localhost:3000>**
 
 ## Docker Run Examples
 
 ### Web Server
-
-Run the web server on port 4096:
 
 ```bash
 docker run -d \
@@ -67,6 +64,7 @@ docker run -d \
   -v ~/.config/opencode:/home/debian/.config/opencode \
   -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
   -e GH_TOKEN=${GH_TOKEN:-} \
+  -e OPENCODE_SERVER_USERNAME=${OPENCODE_SERVER_USERNAME:-opencode} \
   -e OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-} \
   ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096
 ```
@@ -75,7 +73,7 @@ Then access at: **<http://localhost:4096>**
 
 ### TUI Mode
 
-Run OpenCode in interactive terminal mode:
+Run OpenCode in TUI:
 
 ```bash
 docker run -it \
@@ -86,50 +84,11 @@ docker run -it \
   -v ~/.config/opencode:/home/debian/.config/opencode \
   -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
   -e GH_TOKEN=${GH_TOKEN:-} \
-  -e OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-} \
   ghcr.io/brockar/opencoded:latest
 ```
 
-This starts the TUI interface directly in your terminal. Exit with `Ctrl+C` or type `/exit`.
-
-## Running Multiple Instances
-
-You can run multiple OpenCode containers simultaneously on different ports for different projects:
-
-```bash
-# Instance 1: Project A on port 4096
-docker run -d \
-  --name opencoded-project-a \
-  --rm \
-  --user "$(id -u):$(id -g)" \
-  -p 4096:4096 \
-  -v /path/to/project-a:/workspace \
-  -v ~/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro \
-  -v ~/.config/opencode:/home/debian/.config/opencode \
-  -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
-  -e GH_TOKEN=${GH_TOKEN:-} \
-  -e OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-} \
-  ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096
-
-# Instance 2: Project B on port 4097
-docker run -d \
-  --name opencoded-project-b \
-  --rm \
-  --user "$(id -u):$(id -g)" \
-  -p 4097:4096 \
-  -v /path/to/project-b:/workspace \
-  -v ~/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro \
-  -v ~/.config/opencode:/home/debian/.config/opencode \
-  -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
-  -e GH_TOKEN=${GH_TOKEN:-} \
-  -e OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-} \
-  ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096
-```
-
-Access them separately:
-
-- Project A: <http://localhost:4096>
-- Project B: <http://localhost:4097>
+This starts the TUI interface directly in your terminal.  
+Exit with `Ctrl+C` or type `/exit`.
 
 ## Configuration
 
@@ -146,23 +105,28 @@ Access them separately:
 
 The container mounts:
 
-- `Project directory` → project (your project files)
+- `Project directory` → project (your project files or your projects)
 - `~/.ssh/id_ed25519` → SSH key for git operations
 - `~/.config/opencode` → OpenCode configuration
 - `~/.local/share/opencode/auth.json` → OpenCode authentication
 
-> **Tip — persist sessions:** By default only `auth.json` is mounted. To also keep conversation history, mount the full directory instead:
-> ```
+> [!TIP]
+> **Persist sessions:** By default only `auth.json` is mounted. To also keep conversation history, mount the full directory instead:
+>
+> ```bash
 > # replace this:
 > -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json
 > # with:
 > -v ~/.local/share/opencode:/home/debian/.local/share/opencode
 > ```
 
-> **Tip — mount your entire code directory:** Instead of mounting a single project, mount your whole `~/code` directory as the workspace. This lets you open any project from the web UI without restarting the container, and keeps all session history consolidated in one place:
-> ```
+> [!TIP]
+> **Mount your entire code directory:** Instead of mounting a single project, mount your whole `~/code` directory as the workspace. This lets you open any project from the web UI without restarting the container, and keeps all session history consolidated in one place:
+>
+> ```bash
 > -v ~/code:/workspace
 > ```
+>
 > Then navigate to the specific project inside the UI (e.g. `/workspace/my-project`).
 
 ### Environment Variables
@@ -170,37 +134,38 @@ The container mounts:
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `GH_TOKEN` | GitHub token (optional) | - |
+| `OPENCODE_SERVER_USERNAME` | Username for HTTP Basic Auth (web mode) | `opencode` |
 | `OPENCODE_SERVER_PASSWORD` | Password for securing the web interface | - |
 
 ## Shell Alias (Recommended)
 
-Add to your `~/.bashrc` or `~/.zshrc`:
+Run the setup script — it auto-detects **zsh** (preferred) or **bash** and wires everything up:
 
 ```bash
-alias opencoded='docker run -d --rm --name opencoded --user "$(id -u):$(id -g)" -p "${OPENCODE_PORT:-4096}:4096" -v "${OPENCODE_PATH:-$(pwd)}:/workspace" -v "$HOME/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro" -v "$HOME/.config/opencode:/home/debian/.config/opencode" -v "$HOME/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json" -e "GH_TOKEN=${GH_TOKEN:-}" -e "OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-}" ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096'
-
-alias opencodedt='docker run -it --rm --name opencoded-tui --user "$(id -u):$(id -g)" -v "${OPENCODE_PATH:-$(pwd)}:/workspace" -v "$HOME/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro" -v "$HOME/.config/opencode:/home/debian/.config/opencode" -v "$HOME/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json" -e "GH_TOKEN=${GH_TOKEN:-}" -e "OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-}" ghcr.io/brockar/opencoded:latest'
+~/opencoded/setup_shell.sh
 ```
 
-Then reload: `source ~/.bashrc`
+Then reload your shell. For manual setup and all available options, see [Shell Setup Guide](docs/shell-setup.md).
 
-### Usage with Environment Variables
+## Customizing the Image
+
+The image is based on `debian:bookworm-slim` and already includes `vim`, `ripgrep`, `curl`, `gh`, `openssh-client`, and a few other essentials. If your project needs extra tools (e.g. a language runtime, linter, or CLI), add them to the `Dockerfile` before the `opencode` install step:
+
+```dockerfile
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  your-package-here \
+  && rm -rf /var/lib/apt/lists/*
+```
+
+Then rebuild the image locally:
 
 ```bash
-opencoded
+docker build -t ghcr.io/brockar/opencoded:latest .
+```
 
-# Custom port
-OPENCODE_PORT=5000 opencoded
+> [!NOTE]
+> Always pair `apt-get install` with `rm -rf /var/lib/apt/lists/*` in the same `RUN` layer to keep the image size small.
 
-# Custom project path
-OPENCODE_PATH=/path/to/project opencoded
-
-# Both
-OPENCODE_PORT=5000 OPENCODE_PATH=/path/to/project opencoded
-
-# TUI mode
-opencodedt
-
-# Stop
-docker stop opencoded
+```bash
+docker pull ghcr.io/brockar/opencoded:latest
 ```

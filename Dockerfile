@@ -35,9 +35,9 @@ RUN mkdir -p /home/debian/.ssh \
   && mkdir -p /home/debian/.local/share/opencode /home/debian/.config/opencode
 
 RUN if [ "${OPENCODE_VERSION}" = "latest" ]; then \
-    curl -fsSL https://opencode.ai/install | bash; \
+  curl -fsSL https://opencode.ai/install | bash; \
   else \
-    curl -fsSL https://opencode.ai/install | bash -s -- --version "${OPENCODE_VERSION}"; \
+  curl -fsSL https://opencode.ai/install | bash -s -- --version "${OPENCODE_VERSION}"; \
   fi
 ENV PATH="/home/debian/.opencode/bin:${PATH}"
 ENTRYPOINT ["opencode"]
