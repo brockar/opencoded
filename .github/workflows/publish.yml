@@ -21,12 +21,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
       - name: Discover latest OpenCode version
         id: version
         env:
@@ -36,17 +35,24 @@ jobs:
           version=$(gh release view --repo anomalyco/opencode --json tagName --jq '.tagName | sub("^v"; "")')
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
+  build:
+    needs: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
       - name: Check if image tag exists in GHCR
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OWNER: brockar
           PACKAGE: opencoded
-          VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ needs.version.outputs.version }}
         run: |
           set -euo pipefail
           result=$(gh api --paginate "/users/${OWNER}/packages/container/${PACKAGE}/versions?per_page=100" \
-            --jq 'any(.[]; (.metadata.container.tags | index("latest")) and (.metadata.container.tags | index(env.VERSION)))')
+            --jq '(any(.[]; .metadata.container.tags | index("latest"))) and (any(.[]; .metadata.container.tags | index(env.VERSION)))')
           if [ "$result" = "true" ] && [ "${{ inputs.force }}" != "true" ]; then
             echo "build_needed=false" >> "$GITHUB_OUTPUT"
           else
@@ -69,9 +75,64 @@ jobs:
         uses: docker/build-push-action@v6
         if: steps.check.outputs.build_needed == 'true'
         with:
+          context: .
           push: true
           tags: |
-            ghcr.io/brockar/opencoded:${{ steps.version.outputs.version }}
+            ghcr.io/brockar/opencoded:${{ needs.version.outputs.version }}
             ghcr.io/brockar/opencoded:latest
           build-args: |
-            OPENCODE_VERSION=${{ steps.version.outputs.version }}
+            OPENCODE_VERSION=${{ needs.version.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-slim:
+    needs: version
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check if slim image tag exists in GHCR
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: brockar
+          PACKAGE: opencoded
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          result=$(gh api --paginate "/users/${OWNER}/packages/container/${PACKAGE}/versions?per_page=100" \
+            --jq '(any(.[]; .metadata.container.tags | index("slim"))) and (any(.[]; .metadata.container.tags | index(env.VERSION + "-slim")))')
+          if [ "$result" = "true" ] && [ "${{ inputs.force }}" != "true" ]; then
+            echo "build_needed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "build_needed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        if: steps.check.outputs.build_needed == 'true'
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        if: steps.check.outputs.build_needed == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push slim image
+        uses: docker/build-push-action@v6
+        if: steps.check.outputs.build_needed == 'true'
+        with:
+          context: .
+          file: Dockerfile.slim
+          push: true
+          tags: |
+            ghcr.io/brockar/opencoded:${{ needs.version.outputs.version }}-slim
+            ghcr.io/brockar/opencoded:slim
+          build-args: |
+            OPENCODE_VERSION=${{ needs.version.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

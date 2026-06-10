@@ -1,0 +1,52 @@
+FROM alpine:latest
+
+RUN apk add --no-cache \
+  bash \
+  sudo \
+  curl \
+  wget \
+  unzip \
+  grep \
+  less \
+  sed \
+  gawk \
+  ripgrep \
+  jq \
+  diffutils \
+  findutils \
+  file \
+  tar \
+  gzip \
+  git \
+  git-lfs \
+  vim \
+  openssh-client \
+  ca-certificates \
+  gnupg \
+  fd \
+  patch \
+  procps \
+  github-cli
+
+RUN adduser -D -s /bin/bash opencoded \
+  && mkdir -p /workspace \
+  && chown opencoded:opencoded /workspace \
+  && echo "opencoded ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+USER opencoded
+WORKDIR /home/opencoded
+
+ARG OPENCODE_VERSION=latest
+
+RUN mkdir -p /home/opencoded/.ssh \
+  && ssh-keyscan github.com >> /home/opencoded/.ssh/known_hosts \
+  && mkdir -p /home/opencoded/.local/share/opencode /home/opencoded/.config/opencode
+
+RUN if [ "${OPENCODE_VERSION}" = "latest" ]; then \
+  curl -fsSL https://opencode.ai/install | bash; \
+  else \
+  curl -fsSL https://opencode.ai/install | bash -s -- --version "${OPENCODE_VERSION}"; \
+  fi
+
+ENV PATH="/home/opencoded/.opencode/bin:${PATH}"
+ENTRYPOINT ["opencode"]

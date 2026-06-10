@@ -1,5 +1,24 @@
 # OpenCode Dev Container
 
+<!--toc:start-->
+- [OpenCode Dev Container](#opencode-dev-container)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+    - [Clone the repository](#clone-the-repository)
+    - [Prerequisites](#prerequisites)
+    - [Using Docker Compose (recommended)](#using-docker-compose-recommended)
+    - [Using the helper script](#using-the-helper-script)
+  - [Docker Run Examples](#docker-run-examples)
+    - [Web Server](#web-server)
+    - [TUI Mode](#tui-mode)
+  - [Configuration](#configuration)
+    - [Helper Script Environment Variables](#helper-script-environment-variables)
+    - [Volume Mounts](#volume-mounts)
+    - [Environment Variables](#environment-variables)
+  - [Shell Alias (Recommended)](#shell-alias-recommended)
+  - [Customizing the Image](#customizing-the-image)
+<!--toc:end-->
+
 ![OpenCode Banner](docs/assets/banner.webp)
 
 A Dockerized way to run [OpenCode](https://opencode.ai) — the AI-powered coding assistant — in both **web-based** and **TUI** modes. This container packages OpenCode with all dependencies, providing isolated, reproducible environments for AI-assisted development.
@@ -60,9 +79,9 @@ docker run -d \
   --user "$(id -u):$(id -g)" \
   -p 4096:4096 \
   -v $(pwd):/workspace \
-  -v ~/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro \
-  -v ~/.config/opencode:/home/debian/.config/opencode \
-  -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
+  -v ~/.ssh/id_ed25519:/home/opencoded/.ssh/id_ed25519:ro \
+  -v ~/.config/opencode:/home/opencoded/.config/opencode \
+  -v ~/.local/share/opencode/auth.json:/home/opencoded/.local/share/opencode/auth.json \
   -e GH_TOKEN=${GH_TOKEN:-} \
   -e OPENCODE_SERVER_USERNAME=${OPENCODE_SERVER_USERNAME:-opencode} \
   -e OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-} \
@@ -80,9 +99,9 @@ docker run -it \
   --rm \
   --user "$(id -u):$(id -g)" \
   -v $(pwd):/workspace \
-  -v ~/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro \
-  -v ~/.config/opencode:/home/debian/.config/opencode \
-  -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
+  -v ~/.ssh/id_ed25519:/home/opencoded/.ssh/id_ed25519:ro \
+  -v ~/.config/opencode:/home/opencoded/.config/opencode \
+  -v ~/.local/share/opencode/auth.json:/home/opencoded/.local/share/opencode/auth.json \
   -e GH_TOKEN=${GH_TOKEN:-} \
   ghcr.io/brockar/opencoded:latest
 ```
@@ -115,9 +134,9 @@ The container mounts:
 >
 > ```bash
 > # replace this:
-> -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json
+> -v ~/.local/share/opencode/auth.json:/home/opencoded/.local/share/opencode/auth.json
 > # with:
-> -v ~/.local/share/opencode:/home/debian/.local/share/opencode
+> -v ~/.local/share/opencode:/home/opencoded/.local/share/opencode
 > ```
 
 > [!TIP]
@@ -149,23 +168,26 @@ Then reload your shell. For manual setup and all available options, see [Shell S
 
 ## Customizing the Image
 
-The image is based on `debian:bookworm-slim` and already includes `vim`, `ripgrep`, `curl`, `gh`, `openssh-client`, and a few other essentials. If your project needs extra tools (e.g. a language runtime, linter, or CLI), add them to the `Dockerfile` before the `opencode` install step:
-
 ```dockerfile
 RUN apt-get update && apt-get install -y --no-install-recommends \
   your-package-here \
   && rm -rf /var/lib/apt/lists/*
 ```
 
-Then rebuild the image locally:
+For the slim image, edit `Dockerfile.slim` and use `apk`:
+
+```dockerfile
+RUN apk add --no-cache your-package-here
+```
+
+Then rebuild locally:
 
 ```bash
+# Standard
 docker build -t ghcr.io/brockar/opencoded:latest .
+# Slim
+docker build -f Dockerfile.slim -t ghcr.io/brockar/opencoded:slim .
 ```
 
 > [!NOTE]
 > Always pair `apt-get install` with `rm -rf /var/lib/apt/lists/*` in the same `RUN` layer to keep the image size small.
-
-```bash
-docker pull ghcr.io/brockar/opencoded:latest
-```

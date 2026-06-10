@@ -10,9 +10,9 @@ docker run -d \
   --user "$(id -u):$(id -g)" \
   -p 4096:4096 \
   -v /path/to/project-a:/workspace \
-  -v ~/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro \
-  -v ~/.config/opencode:/home/debian/.config/opencode \
-  -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
+  -v ~/.ssh/id_ed25519:/home/opencoded/.ssh/id_ed25519:ro \
+  -v ~/.config/opencode:/home/opencoded/.config/opencode \
+  -v ~/.local/share/opencode/auth.json:/home/opencoded/.local/share/opencode/auth.json \
   -e GH_TOKEN=${GH_TOKEN:-} \
   -e OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-} \
   ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096
@@ -24,9 +24,9 @@ docker run -d \
   --user "$(id -u):$(id -g)" \
   -p 4097:4096 \
   -v /path/to/project-b:/workspace \
-  -v ~/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro \
-  -v ~/.config/opencode:/home/debian/.config/opencode \
-  -v ~/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json \
+  -v ~/.ssh/id_ed25519:/home/opencoded/.ssh/id_ed25519:ro \
+  -v ~/.config/opencode:/home/opencoded/.config/opencode \
+  -v ~/.local/share/opencode/auth.json:/home/opencoded/.local/share/opencode/auth.json \
   -e GH_TOKEN=${GH_TOKEN:-} \
   -e OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-} \
   ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096
