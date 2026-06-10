@@ -41,9 +41,9 @@ opencoded() {
     --user "$(id -u):$(id -g)" \
     -p "${OPENCODE_PORT:-4096}:4096" \
     -v "${OPENCODE_PATH:-$(pwd)}:/workspace" \
-    -v "$HOME/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro" \
-    -v "$HOME/.config/opencode:/home/debian/.config/opencode" \
-    -v "$HOME/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json" \
+    -v "$HOME/.ssh/id_ed25519:/home/opencoded/.ssh/id_ed25519:ro" \
+    -v "$HOME/.config/opencode:/home/opencoded/.config/opencode" \
+    -v "$HOME/.local/share/opencode/auth.json:/home/opencoded/.local/share/opencode/auth.json" \
     -e "GH_TOKEN=${GH_TOKEN:-}" \
     -e "OPENCODE_SERVER_USERNAME=${OPENCODE_SERVER_USERNAME:-opencode}" \
     -e "OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-}" \
@@ -56,9 +56,9 @@ opencodedt() {
     --name opencoded-tui \
     --user "$(id -u):$(id -g)" \
     -v "${OPENCODE_PATH:-$(pwd)}:/workspace" \
-    -v "$HOME/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro" \
-    -v "$HOME/.config/opencode:/home/debian/.config/opencode" \
-    -v "$HOME/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json" \
+    -v "$HOME/.ssh/id_ed25519:/home/opencoded/.ssh/id_ed25519:ro" \
+    -v "$HOME/.config/opencode:/home/opencoded/.config/opencode" \
+    -v "$HOME/.local/share/opencode/auth.json:/home/opencoded/.local/share/opencode/auth.json" \
     -e "GH_TOKEN=${GH_TOKEN:-}" \
     ghcr.io/brockar/opencoded:latest
 }

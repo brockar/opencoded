@@ -7,7 +7,6 @@ PROJECT_PATH="${PROJECT_PATH:-$(pwd)}"
 CONTAINER_NAME="opencoded"
 OC_AUTH_PATH="$HOME/.local/share/opencode/auth.json"
 
-### COLORS
 set -e
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -54,9 +53,9 @@ docker run -d \
   --user "${UID}:${GID}" \
   -p "${PORT}:4096" \
   -v "${PROJECT_PATH}:/workspace" \
-  -v "$HOME/.ssh/id_ed25519:/home/debian/.ssh/id_ed25519:ro" \
-  -v "$HOME/.config/opencode:/home/debian/.config/opencode" \
-  -v "$HOME/.local/share/opencode/auth.json:/home/debian/.local/share/opencode/auth.json" \
+  -v "$HOME/.ssh/id_ed25519:/home/opencoded/.ssh/id_ed25519:ro" \
+  -v "$HOME/.config/opencode:/home/opencoded/.config/opencode" \
+  -v "$HOME/.local/share/opencode/auth.json:/home/opencoded/.local/share/opencode/auth.json" \
   -e "GH_TOKEN=${GH_TOKEN:-}" \
   -e "OPENCODE_SERVER_USERNAME=${OPENCODE_SERVER_USERNAME:-opencode}" \
   -e "OPENCODE_SERVER_PASSWORD=${OPENCODE_SERVER_PASSWORD:-}" \
