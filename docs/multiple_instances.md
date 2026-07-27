@@ -1,6 +1,6 @@
-# Running Multiple Instances
+# Run Multiple Instances
 
-You can run multiple OpenCode containers simultaneously on different ports for different projects or accounts.
+You can run multiple OpenCode containers at the same time on different ports for different projects or accounts.
 
 ```bash
 # Instance 1: Project A on port 4096
@@ -32,7 +32,7 @@ docker run -d \
   ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096
 ```
 
-Access them separately:
+Open each instance in your browser:
 
 - Project A: <http://localhost:4096>
 - Project B: <http://localhost:4097>

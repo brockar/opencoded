@@ -6,31 +6,31 @@
   - [Quick Start](#quick-start)
     - [Clone the repository](#clone-the-repository)
     - [Prerequisites](#prerequisites)
-    - [Using Docker Compose (recommended)](#using-docker-compose-recommended)
-    - [Using the helper script](#using-the-helper-script)
+    - [Use Docker Compose](#use-docker-compose)
+    - [Use the helper script](#use-the-helper-script)
   - [Docker Run Examples](#docker-run-examples)
     - [Web Server](#web-server)
-    - [TUI Mode](#tui-mode)
+    - [Terminal Mode](#terminal-mode)
   - [Configuration](#configuration)
     - [Helper Script Environment Variables](#helper-script-environment-variables)
     - [Volume Mounts](#volume-mounts)
     - [Environment Variables](#environment-variables)
-  - [Shell Alias (Recommended)](#shell-alias-recommended)
-  - [Customizing the Image](#customizing-the-image)
+  - [Shell Alias](#shell-alias)
+  - [Customize the Container Image](#customize-the-container-image)
 <!--toc:end-->
 
 ![OpenCode Banner](docs/assets/banner.webp)
 
-A Dockerized way to run [OpenCode](https://opencode.ai) — the AI-powered coding assistant — in both **web-based** and **TUI** modes. This container packages OpenCode with all dependencies, providing isolated, reproducible environments for AI-assisted development.
+This container runs [OpenCode](https://opencode.ai) inside Docker. You can run OpenCode in web mode or terminal mode. The container includes all dependencies and isolates your environment.
 
 ## Features
 
-- **Web Interface**: Access OpenCode through your browser
-- **TUI Mode**: Run OpenCode directly in your terminal for a native CLI experience
-- **Multiple Instances**: Run several OpenCode containers simultaneously on different ports for different projects — [guide](docs/multiple_instances.md)
-- **Persistent Configuration**: Your OpenCode settings and authentication persist across container restarts
-- **Git Integration**: SSH keys mounted for seamless git operations
-- **Project Isolation**: Each container works on a specific project directory
+- **Web interface**: Open OpenCode in your browser.
+- **TUI mode**: Run OpenCode directly in your terminal.
+- **Multiple instances**: Run multiple containers at the same time on different ports. See the [multiple instances guide](docs/multiple_instances.md).
+- **Persistent configuration**: Save your OpenCode settings and authentication across container restarts.
+- **Git integration**: Mount SSH keys to use Git commands.
+- **Project isolation**: Separate projects into distinct containers.
 
 ## Quick Start
 
@@ -43,26 +43,30 @@ cd ~/opencoded
 
 ### Prerequisites
 
-Before running, make sure you have:
+Before you run the container, make sure you have these items:
 
-- Your **SSH key** at `~/.ssh/id_ed25519` (for git operations inside the container)
-- **OpenCode authentication** configured (see [Configuration](#configuration) below)
+- An SSH key at `~/.ssh/id_ed25519` for Git commands inside the container.
+- Configured OpenCode authentication. See the [configuration section](#configuration).
 
-### Using Docker Compose (recommended)
+### Use Docker Compose
+
+Run this command:
 
 ```bash
 docker compose up -d
 ```
 
-The web interface will be available at: **<http://localhost:4096>**
+Open the web interface at **<http://localhost:4096>**.
 
-### Using the helper script
+### Use the helper script
+
+Run the helper script:
 
 ```bash
 ~/opencoded/run.sh
 ```
 
-Run on a specific project:
+To run the container for a specific project:
 
 ```bash
 PROJECT_PATH=/path/to/project ~/opencoded/run.sh
@@ -71,6 +75,8 @@ PROJECT_PATH=/path/to/project ~/opencoded/run.sh
 ## Docker Run Examples
 
 ### Web Server
+
+Run the web server container:
 
 ```bash
 docker run -d \
@@ -88,11 +94,11 @@ docker run -d \
   ghcr.io/brockar/opencoded:latest web --hostname 0.0.0.0 --port 4096
 ```
 
-Then access at: **<http://localhost:4096>**
+Open the web interface at **<http://localhost:4096>**.
 
 ### TUI Mode
 
-Run OpenCode in TUI:
+Run OpenCode in terminal mode:
 
 ```bash
 docker run -it \
@@ -106,15 +112,14 @@ docker run -it \
   ghcr.io/brockar/opencoded:latest
 ```
 
-This starts the TUI interface directly in your terminal.  
-Exit with `Ctrl+C` or type `/exit`.
+This command starts the terminal interface. Press `Ctrl+C` or type `/exit` to stop the container.
 
 ## Configuration
 
 ### Helper Script Environment Variables
 
 | Variable | Description | Default |
-|----------|-------------|---------|
+| ---------- | ------------- | --------- |
 | `PROJECT_PATH` | Path to project directory | `$(pwd)` |
 | `OPENCODE_PORT` | Host port to expose | `4096` |
 | `UID` | User ID for file permissions | `$(id -u)` |
@@ -122,51 +127,50 @@ Exit with `Ctrl+C` or type `/exit`.
 
 ### Volume Mounts
 
-The container mounts:
+The container mounts these volumes:
 
-- `Project directory` → project (your project files or your projects)
-- `~/.ssh/id_ed25519` → SSH key for git operations
-- `~/.config/opencode` → OpenCode configuration
-- `~/.local/share/opencode/auth.json` → OpenCode authentication
+- Project directory: `/workspace`
+- `~/.ssh/id_ed25519`: SSH key for Git operations
+- `~/.config/opencode`: OpenCode settings
+- `~/.local/share/opencode/auth.json`: OpenCode authentication file
 
 > [!TIP]
-> **Persist sessions:** By default only `auth.json` is mounted. To also keep conversation history, mount the full directory instead:
+> **Save session history:** The container mounts `auth.json` by default. Mount the full directory to save conversation history:
 >
 > ```bash
-> # replace this:
-> -v ~/.local/share/opencode/auth.json:/home/opencoded/.local/share/opencode/auth.json
-> # with:
 > -v ~/.local/share/opencode:/home/opencoded/.local/share/opencode
 > ```
 
 > [!TIP]
-> **Mount your entire code directory:** Instead of mounting a single project, mount your whole `~/code` directory as the workspace. This lets you open any project from the web UI without restarting the container, and keeps all session history consolidated in one place:
+> **Mount your parent code directory:** Mount your `~/code` directory as the workspace. This allows you to open any project in the web interface without restarting the container:
 >
 > ```bash
 > -v ~/code:/workspace
 > ```
 >
-> Then navigate to the specific project inside the UI (e.g. `/workspace/my-project`).
+> Open the specific project directory inside the interface.
 
 ### Environment Variables
 
 | Variable | Description | Default |
-|----------|-------------|---------|
+| ---------- | ------------- | --------- |
 | `GH_TOKEN` | GitHub token (optional) | - |
-| `OPENCODE_SERVER_USERNAME` | Username for HTTP Basic Auth (web mode) | `opencode` |
-| `OPENCODE_SERVER_PASSWORD` | Password for securing the web interface | - |
+| `OPENCODE_SERVER_USERNAME` | Username for web interface authentication | `opencode` |
+| `OPENCODE_SERVER_PASSWORD` | Password for web interface authentication | - |
 
-## Shell Alias (Recommended)
+## Shell Alias
 
-Run the setup script — it auto-detects **zsh** (preferred) or **bash** and wires everything up:
+Run the setup script to configure shell aliases automatically. The script detects Zsh or Bash:
 
 ```bash
 ~/opencoded/setup_shell.sh
 ```
 
-Then reload your shell. For manual setup and all available options, see [Shell Setup Guide](docs/shell-setup.md).
+Reload your shell after the script finishes. See the [shell setup guide](docs/shell-setup.md) for manual setup steps.
 
-## Customizing the Image
+## Customize the Container Image
+
+To add packages to the standard image, edit `Dockerfile`:
 
 ```dockerfile
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -174,20 +178,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 ```
 
-For the slim image, edit `Dockerfile.slim` and use `apk`:
+To add packages to the slim image, edit `Dockerfile.slim`:
 
 ```dockerfile
 RUN apk add --no-cache your-package-here
 ```
 
-Then rebuild locally:
+Rebuild the image locally:
 
 ```bash
-# Standard
+# Standard image
 docker build -t ghcr.io/brockar/opencoded:latest .
-# Slim
+# Slim image
 docker build -f Dockerfile.slim -t ghcr.io/brockar/opencoded:slim .
 ```
 
 > [!NOTE]
-> Always pair `apt-get install` with `rm -rf /var/lib/apt/lists/*` in the same `RUN` layer to keep the image size small.
+> Combine `apt-get install` with `rm -rf /var/lib/apt/lists/*` in the same `RUN` instruction to keep the image size small.

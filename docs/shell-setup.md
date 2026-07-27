@@ -2,35 +2,41 @@
 
 <!--toc:start-->
 - [Shell Setup Guide](#shell-setup-guide)
-  - [Option 1: Setup Script (Recommended)](#option-1-setup-script-recommended)
-  - [Option 2: Manual Setup (Quick)](#option-2-manual-setup-quick)
+  - [Option 1: Setup Script](#option-1-setup-script)
+  - [Option 2: Manual Setup](#option-2-manual-setup)
   - [Usage](#usage)
 <!--toc:end-->
 
-## Option 1: Setup Script (Recommended)
+## Option 1: Setup Script
 
-Run the included script — it auto-detects your shell (zsh preferred, bash fallback) and sets everything up:
+Run the included script to configure shell aliases for opencoded:
 
 ```bash
 ~/opencoded/setup_shell.sh
 ```
 
-The script will:
+The script configures your shell for opencoded:
 
-1. Detect whether you have **zsh** or **bash**
-2. Write the `opencoded` and `opencodedt` functions to `~/.local/bin/opencoded-functions.sh`
-3. Add a single `source` line to your `~/.zshrc` or `~/.bashrc` (idempotent — safe to run multiple times)
-4. Tell you which rc file it configured
+1. **Shell Detection**: Detects if you use Zsh or Bash, and updates the configuration file (`~/.zshrc` or `~/.bashrc`).
+2. **Function Installation**: Creates `~/.local/bin/opencoded-functions.sh` with required Docker functions.
+3. **Auto-Sourcing**: Adds a `source` command to load these functions in new terminal sessions.
+4. **Setup Confirmation**: Prints the path of the configured file.
 
-Then reload your shell:
+The script sets up Docker configuration, including:
+- User namespace mapping (creates files with your host user ID)
+- SSH key forwarding (for Git operations inside the container)
+- Configuration persistence (saves your opencode settings)
+- Authentication token sharing (so you do not need to log in again)
+
+Reload your shell:
 
 ```bash
 source ~/.zshrc   # or ~/.bashrc
 ```
 
-## Option 2: Manual Setup (Quick)
+## Option 2: Manual Setup
 
-Add the functions directly to your `~/.zshrc` or `~/.bashrc`:
+Add these functions directly to your `~/.zshrc` or `~/.bashrc` file:
 
 ```bash
 opencoded() {
@@ -63,26 +69,30 @@ opencodedt() {
 }
 ```
 
-Then reload: `source ~/.zshrc` or `source ~/.bashrc`.
+Reload your shell:
+
+```bash
+source ~/.zshrc   # or ~/.bashrc
+```
 
 ## Usage
 
 ```bash
-# Start web mode (detached)
+# Start web mode
 opencoded
 
-# Start TUI mode (interactive)
+# Start terminal mode
 opencodedt
 
-# Custom port
+# Set a custom port
 OPENCODE_PORT=5000 opencoded
 
-# Custom project path
+# Set a custom project path
 OPENCODE_PATH=/path/to/project opencoded
 
-# Both
+# Set both port and project path
 OPENCODE_PORT=5000 OPENCODE_PATH=/path/to/project opencoded
 
-# Stop
+# Stop the container
 docker stop opencoded
 ```
